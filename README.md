@@ -1,4 +1,4 @@
 # Calarm
 This is android app. Calarm is a simple car alarm. You can use your old smartphone as a car alarm.
 ## How it work?
-Po uruchomieniu aplikacji umięść telefon w odpowiednim miejscu w swoim samochodzie. Następnie kliknij różowy przycisk na środku. Jeśli twoje auto się ruszy otrzymasz wiadomość sms.
+After starting the application, put the phone in the right place in your car. Then click the pink button in the middle. If your car starts, you'll receive a text message.
