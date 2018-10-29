@@ -26,6 +26,11 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private double saveX, saveY, saveZ; //saved coordinates
     private boolean onLock=false;
     private boolean Alarm=false;
+
+
+
+
+
     ImageView image;
     SmsManager smsManager = SmsManager.getDefault();
     String phoneNo = "";
