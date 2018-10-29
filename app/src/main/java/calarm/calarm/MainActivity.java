@@ -1,5 +1,7 @@
 package calarm.calarm;
 
+import android.content.Intent;
+import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
@@ -43,8 +45,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
 
         ImageView btnDisable = (ImageView)findViewById(R.id.btnDisable);
+        ImageView btnPreferencje = (ImageView)findViewById(R.id.imageView3);
 
         btnDisable.setOnClickListener(this);
+        btnPreferencje.setOnClickListener(this);
 
 
     }
@@ -68,6 +72,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                     btnOn=false;
                     onLock = false;
                 }
+            case R.id.imageView3:
+                Intent intent = new Intent(this, PreferencesActivity.class);
+                startActivity(intent);
         }
 
     }
