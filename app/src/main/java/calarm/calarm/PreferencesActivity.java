@@ -40,7 +40,7 @@ public class PreferencesActivity extends AppCompatActivity implements View.OnCli
         Button btnZatwiedz = (Button) findViewById(R.id.btnZatwierdz);
         btnZatwiedz.setOnClickListener(this);
         btnClose.setOnClickListener(this);
-
+        readData();
 
 
     }
@@ -62,12 +62,20 @@ public class PreferencesActivity extends AppCompatActivity implements View.OnCli
     }
 
 
-    /*
-    private void restoreData() {
-        String textFromPreferences = preferences.getString(PREFERENCES_TEXT_FIELD, "");
-        etToSave.setText(textFromPreferences);
+
+    private void readData() {
+        String phonenumberFrompreferences = preferences.getString(PREFERENCES_PHONENUMBER, "");
+        String mailFrompreferences = preferences.getString(PREFERENCES_MAIL, "");
+        String pinFrompreferences = preferences.getString(PREFERENCES_PIN, "");
+        String timeawakeFrompreferences = preferences.getString(PREFERENCES_TIMEAWAKE, "");
+
+
+        editTextPhonenumber.setText(phonenumberFrompreferences);
+        editTextMail.setText(mailFrompreferences);
+        editTextPin.setText(pinFrompreferences);
+        editTextTimeawake.setText(timeawakeFrompreferences);
     }
-    */
+
 
     public void onClick(View v) {
         Intent intent = new Intent(this, MainActivity.class);

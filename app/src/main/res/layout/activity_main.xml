@@ -73,4 +73,14 @@
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="100dp" />
 
+    <TextView
+        android:id="@+id/textView6"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/saveText"
+        android:layout_alignParentEnd="true"
+        android:layout_marginEnd="66dp"
+        android:layout_marginBottom="-30dp"
+        android:text="TextView" />
+
 </RelativeLayout>
