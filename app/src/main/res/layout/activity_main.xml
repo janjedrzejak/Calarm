@@ -26,24 +26,11 @@
         android:id="@+id/btnDisable"
         android:layout_width="238dp"
         android:layout_height="250dp"
-        android:layout_alignParentStart="true"
         android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginStart="73dp"
-        android:layout_marginBottom="153dp"
-        android:adjustViewBounds="false"
+        android:layout_marginBottom="148dp"
         android:cropToPadding="false"
+        android:layout_centerInParent="true"
         app:srcCompat="@drawable/zablokuj" />
-
-    <ImageView
-        android:id="@+id/imageView3"
-        android:layout_width="match_parent"
-        android:layout_height="70dp"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentBottom="true"
-        android:layout_marginEnd="0dp"
-        android:layout_marginBottom="0dp"
-        app:srcCompat="@drawable/preferencesi" />
 
     <TextView
         android:id="@+id/readText"
@@ -73,14 +60,25 @@
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="100dp" />
 
-    <TextView
-        android:id="@+id/textView6"
-        android:layout_width="wrap_content"
+    <Button
+        android:id="@+id/btnPreferencje"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/saveText"
-        android:layout_alignParentEnd="true"
-        android:layout_marginEnd="66dp"
-        android:layout_marginBottom="-30dp"
-        android:text="TextView" />
+        android:layout_alignStart="@+id/readText"
+        android:layout_alignBottom="@+id/sText"
+        android:layout_marginStart="-29dp"
+        android:layout_marginBottom="-100dp"
+        android:background="#0000ff"
+        android:fontFamily="@font/montserrat"
+        android:text="Ustawienia aplikacji"
+        android:textAlignment="center"
+        android:textAllCaps="false"
+        android:textColor="#ffffff"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:typeface="normal"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
 </RelativeLayout>

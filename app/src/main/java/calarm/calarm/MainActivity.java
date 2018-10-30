@@ -3,6 +3,7 @@ package calarm.calarm;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
@@ -11,10 +12,12 @@ import android.hardware.SensorManager;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import android.telephony.SmsManager;
+import android.widget.Toast;
 
 
 public class MainActivity extends AppCompatActivity implements SensorEventListener, View.OnClickListener {
@@ -33,6 +36,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private static final String PREFERENCES_MAIL = "mail";
     private static final String PREFERENCES_PIN = "pin";
     private static final String PREFERENCES_TIMEAWAKE = "timeawake";
+    private static final String PREFERENCES_PRECISION = "precision";
 
     private SharedPreferences preferences;
 
@@ -41,7 +45,26 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     ImageView image;
     SmsManager smsManager = SmsManager.getDefault();
     String phoneNo;
-    String sms = "Test alarmu samochodowego. Zignoruj wiadomość pozdrawiam";
+    double p=(1.00 - (30.00 / 100.00));
+    int timeawake=2000; //time evacuation
+    String sms = "ALARM!";
+
+    private void saveDefaultData() {
+        SharedPreferences.Editor preferencesEditor = preferences.edit();
+
+        String phonenumber = "";
+        String mail = "";
+        String pin = "";
+        String timeawake = "30";
+
+        preferencesEditor.putString(PREFERENCES_PHONENUMBER, phonenumber);
+        preferencesEditor.putString(PREFERENCES_MAIL, mail);
+        preferencesEditor.putString(PREFERENCES_PIN, pin);
+        preferencesEditor.putString(PREFERENCES_TIMEAWAKE, timeawake);
+        preferencesEditor.putInt(PREFERENCES_PRECISION, 30);
+
+        preferencesEditor.commit();
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,7 +72,15 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         setContentView(R.layout.activity_main);
 
         preferences = getSharedPreferences(PREFERENCES_NAME, AppCompatActivity.MODE_PRIVATE);
-        readData();
+
+        if(!preferences.contains(PREFERENCES_PHONENUMBER)) {
+            saveDefaultData();
+            Toast.makeText(getApplicationContext(),"Uzupełnij ustawienia, \n aby aplikacja była gotowa do użycia.", Toast.LENGTH_LONG).show();
+            readData();
+        } else {
+            readData();
+        }
+
 
         SM = (SensorManager)getSystemService(SENSOR_SERVICE);
         mySensor = SM.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
@@ -59,7 +90,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         answerText = (TextView)findViewById(R.id.sText);
 
         ImageView btnDisable = (ImageView)findViewById(R.id.btnDisable);
-        ImageView btnPreferencje = (ImageView)findViewById(R.id.imageView3);
+        Button btnPreferencje = (Button)findViewById(R.id.btnPreferencje);
 
         btnDisable.setOnClickListener(this);
         btnPreferencje.setOnClickListener(this);
@@ -73,24 +104,58 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         image = (ImageView) findViewById(R.id.btnDisable);
         switch (v.getId()) {
             case R.id.btnDisable:
+                //=======================================================================
+                if(phoneNo.length()==9) {
 
-                saveX = X;
-                saveY = Y;
-                saveZ = Z;
+                    if (btnOn == false) {
+                        image.setImageResource(R.drawable.odblokuj);
+                        Toast.makeText(getApplicationContext(), "Alarm uzbrojony! \n Czas na wyjście: " + (timeawake/1000) + " sekund", Toast.LENGTH_LONG).show();
+                    } else {
+                        image.setImageResource(R.drawable.zablokuj);
+                        btnOn = false;
+                        onLock = false;
+                        Toast.makeText(getApplicationContext(), "Alarm rozbrojony!", Toast.LENGTH_LONG).show();
 
-                if(btnOn==false) {
-                    image.setImageResource(R.drawable.odblokuj);
-                    btnOn=true;
-                    onLock = true;
+                        break;
+                    }
+
+                    Handler handler=new Handler();
+                    handler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(getApplicationContext(), "Alarm gotowy do wykrywania intruzów", Toast.LENGTH_LONG).show();
+
+                            saveX = X;
+                            saveY = Y;
+                            saveZ = Z;
+
+                            if (btnOn == false) {
+                                image.setImageResource(R.drawable.odblokuj);
+                                btnOn = true;
+                                onLock = true;
+                            } else {
+                                image.setImageResource(R.drawable.zablokuj);
+                                btnOn = false;
+                                onLock = false;
+                            }
+                        }
+                    }, timeawake);
+                //=======================================================================
                 } else {
-                    image.setImageResource(R.drawable.zablokuj);
-                    btnOn=false;
-                    onLock = false;
-                }
+                    if(phoneNo.length()>=1 || phoneNo.length()<9 || phoneNo.length()>9) {
+                        Toast.makeText(getApplicationContext(), "Podany numer ma zły format!", Toast.LENGTH_LONG).show();
+                        } else {
+                            Toast.makeText(getApplicationContext(), "Nie podano numeru telefonu w ustawieniach", Toast.LENGTH_LONG).show();
+                        }
+                    }
+
+                //=======================================================================
                 break;
-            case R.id.imageView3:
+            case R.id.btnPreferencje:
+                //=======================================================================
                 Intent intent = new Intent(this, PreferencesActivity.class);
                 startActivity(intent);
+                //=======================================================================
                 break;
         }
 
@@ -101,24 +166,38 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         String mailFrompreferences = preferences.getString(PREFERENCES_MAIL, "");
         String pinFrompreferences = preferences.getString(PREFERENCES_PIN, "");
         String timeawakeFrompreferences = preferences.getString(PREFERENCES_TIMEAWAKE, "");
+        int precisionFrompreferences = preferences.getInt(PREFERENCES_PRECISION,0);
 
+        if(phonenumberFrompreferences == "" || mailFrompreferences == "" || pinFrompreferences == "") {
+            Toast.makeText(getApplicationContext(), "uzupełnij dane w ustawieniach!", Toast.LENGTH_LONG).show();
+        }
         phoneNo = phonenumberFrompreferences;
+        p = (1.00 - (precisionFrompreferences / 100.00));
+        timeawake = (Integer.parseInt(timeawakeFrompreferences)) * 1000;
     }
 
     @Override
     public void onSensorChanged(SensorEvent event) {
-        X = event.values[0]; X = Math.round(X);
-        Y = event.values[1]; Y = Math.round(Y);
-        Z = event.values[2]; Z = Math.round(Z);
+        X = event.values[0]; X = Math.round(X*10.0) / 10.0;
+        Y = event.values[1]; Y = Math.round(Y*10.0) / 10.0;
+        Z = event.values[2]; Z = Math.round(Z*10.0) / 10.0;
 
-        //readText.setText("X: " +  X);
-        //saveText.setText("X: " +  saveX);
+        //readText.setText("X: " +  X + " Y: " + Y + " Z: " + Z);
+        //saveText.setText("X: " +  saveX + " Y: " + saveY + " Z: " + saveZ);
 
         if(onLock) {
-            if(X!=saveX || Y!=saveY) {
-                answerText.setText("ALARM!");
+            if(
+                    (X>=(saveX-p) && X<=(saveX+p)) &&
+                    (Y>=(saveY-p) && Y<=(saveY+p)) &&
+                    (Z>=(saveZ-p) && Z<=(saveZ+p))      ) {
+
+                Alarm=false;
+
+            } else {
                 Alarm=true;
+                answerText.setText("ALARM!");
             }
+
         } else {
             answerText.setText("");
             Alarm=false;

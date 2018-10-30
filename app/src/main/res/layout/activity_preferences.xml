@@ -5,7 +5,9 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".HomeActivity"
+    android:paddingTop="18dp"
     android:background="@drawable/bgprefeencje"
+
     >
 
     <TextView
@@ -98,6 +100,26 @@
         android:layout_marginBottom="526dp"
         android:fontFamily="@font/montserrat"
         android:text="Czas zwłoki"
+        android:textColor="#ffffff"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <TextView
+        android:id="@+id/textView6"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="440dp"
+        android:layout_marginEnd="172dp"
+        android:layout_marginBottom="526dp"
+        android:fontFamily="@font/montserrat"
+        android:text="Dokładność"
         android:textColor="#ffffff"
         android:textSize="14sp"
         android:textStyle="bold"
@@ -204,12 +226,15 @@
         android:id="@+id/btnZatwierdz"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:background="#0000ff"
+        android:layout_marginStart="2dp"
+        android:background="#fe0066"
+        android:fontFamily="@font/montserrat"
         android:text="Zatwierdź ustawienia"
         android:textAlignment="center"
         android:textAllCaps="false"
         android:textColor="#ffffff"
         android:textSize="16sp"
+        android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
@@ -223,5 +248,18 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/close" />
+
+    <SeekBar
+        android:id="@+id/seekBar3"
+        android:layout_width="0dp"
+        android:thumbTint="#ffffff"
+        android:progressBackgroundTint="#ffffff"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="5dp"
+        android:layout_marginEnd="16dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView6" />
 
 </android.support.constraint.ConstraintLayout>
