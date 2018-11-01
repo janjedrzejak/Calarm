@@ -1,3 +1,4 @@
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![](https://badgen.net/github/release/janjedrzejak/Calarm)](https://github.com/janjedrzejak/Calarm/releases)
 
 # Calarm
