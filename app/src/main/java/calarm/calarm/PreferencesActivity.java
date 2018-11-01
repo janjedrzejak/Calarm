@@ -76,6 +76,7 @@ public class PreferencesActivity extends AppCompatActivity implements View.OnCli
         String phonenumber = editTextPhonenumber.getText().toString();
         String mail = editTextMail.getText().toString();
         String pin = editTextPin.getText().toString();
+
         String timeawake = editTextTimeawake.getText().toString();
 
         preferencesEditor.putString(PREFERENCES_PHONENUMBER, phonenumber);
@@ -95,7 +96,6 @@ public class PreferencesActivity extends AppCompatActivity implements View.OnCli
         String pinFrompreferences = preferences.getString(PREFERENCES_PIN, "");
         String timeawakeFrompreferences = preferences.getString(PREFERENCES_TIMEAWAKE, "");
         int precisionFrompreferences = preferences.getInt(PREFERENCES_PRECISION,0);
-
 
         editTextPhonenumber.setText(phonenumberFrompreferences);
         editTextMail.setText(mailFrompreferences);

@@ -1,9 +1,15 @@
 package calarm.calarm;
 
+import android.Manifest;
+import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.os.Handler;
 import android.preference.PreferenceManager;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
@@ -40,14 +46,21 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     private SharedPreferences preferences;
 
+    private Context context;
+    private Activity activity;
+    private View view;
+    private static final int PERMISSION_REQUEST_CODE = 1;
+
 
 
     ImageView image;
     SmsManager smsManager = SmsManager.getDefault();
     String phoneNo;
-    double p=(1.00 - (30.00 / 100.00));
+    double prec=(1.00 - (30.00 / 100.00));
     int timeawake=2000; //time evacuation
     String sms = "ALARM!";
+
+
 
     private void saveDefaultData() {
         SharedPreferences.Editor preferencesEditor = preferences.edit();
@@ -66,10 +79,26 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         preferencesEditor.commit();
     }
 
+    private boolean checkPermission(){
+        int result = ContextCompat.checkSelfPermission(context, Manifest.permission.SEND_SMS);
+        if (result == PackageManager.PERMISSION_GRANTED){
+            return true;
+        } else {
+            return false;
+        }
+    }
+    private void requestPermission(){
+        ActivityCompat.requestPermissions(activity,new String[]{Manifest.permission.SEND_SMS},PERMISSION_REQUEST_CODE);
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        if(!checkPermission()) {
+            requestPermission();
+        }
 
         preferences = getSharedPreferences(PREFERENCES_NAME, AppCompatActivity.MODE_PRIVATE);
 
@@ -172,7 +201,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             Toast.makeText(getApplicationContext(), "uzupełnij dane w ustawieniach!", Toast.LENGTH_LONG).show();
         }
         phoneNo = phonenumberFrompreferences;
-        p = (1.00 - (precisionFrompreferences / 100.00));
+        prec = (1.00 - (precisionFrompreferences / 100.00));
         timeawake = (Integer.parseInt(timeawakeFrompreferences)) * 1000;
     }
 
@@ -187,9 +216,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         if(onLock) {
             if(
-                    (X>=(saveX-p) && X<=(saveX+p)) &&
-                    (Y>=(saveY-p) && Y<=(saveY+p)) &&
-                    (Z>=(saveZ-p) && Z<=(saveZ+p))      ) {
+                    (X>=(saveX-prec) && X<=(saveX+prec)) &&
+                    (Y>=(saveY-prec) && Y<=(saveY+prec)) &&
+                    (Z>=(saveZ-prec) && Z<=(saveZ+prec))      ) {
 
                 Alarm=false;
 
