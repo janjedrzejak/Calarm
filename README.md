@@ -16,7 +16,7 @@ After starting the application, put the phone in the right place in your car. Th
 ## Interface
 ![](https://github.com/janjedrzejak/Calarm/blob/demo/demo/0.png)
 ## Activities
-![](https://github.com/janjedrzejak/Calarm/blob/demo/demo/1.png)
+![](https://github.com/janjedrzejak/Calarm/blob/demo/demo/1a.png)
 ## future release functionalities
 * Sending SMS with GPS location data
 * Sending email with GPS location point on map
