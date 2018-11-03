@@ -6,8 +6,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.Handler;
 import android.preference.PreferenceManager;
+import android.provider.Settings;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -51,10 +55,13 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private View view;
     private static final int PERMISSION_REQUEST_CODE = 1;
 
-
+    private double latitude;
+    private double longitude;
 
     ImageView image;
     SmsManager smsManager = SmsManager.getDefault();
+    LocationManager locationManager;
+    LocationListener locationListener;
     String phoneNo;
     double prec=(1.00 - (30.00 / 100.00));
     int timeawake=2000; //time evacuation
@@ -80,8 +87,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     }
 
     private boolean checkPermission(){
-        int result = ContextCompat.checkSelfPermission(context, Manifest.permission.SEND_SMS);
-        if (result == PackageManager.PERMISSION_GRANTED){
+        int smsPermission = ContextCompat.checkSelfPermission(context, Manifest.permission.SEND_SMS);
+        int locationPermission = ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION);
+        if (smsPermission == PackageManager.PERMISSION_GRANTED && locationPermission == PackageManager.PERMISSION_GRANTED){
             return true;
         } else {
             return false;
@@ -89,6 +97,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     }
     private void requestPermission(){
         ActivityCompat.requestPermissions(activity,new String[]{Manifest.permission.SEND_SMS},PERMISSION_REQUEST_CODE);
+        ActivityCompat.requestPermissions(activity, new String[] {Manifest.permission.ACCESS_FINE_LOCATION}, PERMISSION_REQUEST_CODE);
     }
 
 
@@ -104,8 +113,34 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             requestPermission();
         }
 
-        preferences = getSharedPreferences(PREFERENCES_NAME, AppCompatActivity.MODE_PRIVATE);
+        locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+        locationListener = new LocationListener() {
+            @Override
+            public void onLocationChanged(Location location) {
+                latitude = location.getLatitude();
+                longitude = location.getLongitude();
+            }
 
+            @Override
+            public void onStatusChanged(String provider, int status, Bundle extras) {
+
+            }
+
+            @Override
+            public void onProviderEnabled(String provider) {
+
+            }
+
+            @Override
+            public void onProviderDisabled(String provider) {
+                Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                startActivity(intent);
+            }
+        };
+        locationManager.requestLocationUpdates("gps", 1000,0,locationListener);
+        longitude=longitude;
+
+        preferences = getSharedPreferences(PREFERENCES_NAME, AppCompatActivity.MODE_PRIVATE);
         if(!preferences.contains(PREFERENCES_PHONENUMBER)) {
             saveDefaultData();
             Toast.makeText(getApplicationContext(),"Uzupełnij ustawienia, \n aby aplikacja była gotowa do użycia.", Toast.LENGTH_LONG).show();
@@ -142,7 +177,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
                     if (btnOn == false) {
                         image.setImageResource(R.drawable.odblokuj);
-                        Toast.makeText(getApplicationContext(), "Alarm uzbrojony! \n Czas na wyjście: " + (timeawake/1000) + " sekund", Toast.LENGTH_LONG).show();
+                        Toast.makeText(getApplicationContext(), "Alarm uzbrojony! \nCzas na wyjście: " + (timeawake/1000) + " sekund", Toast.LENGTH_LONG).show();
                     } else {
                         image.setImageResource(R.drawable.zablokuj);
                         btnOn = false;
@@ -237,7 +272,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         }
 
         if(Alarm==true) {
-            smsManager.sendTextMessage(phoneNo, null, sms, null, null);
+            //smsManager.sendTextMessage(phoneNo, null, sms, null, null);
             onLock=false;
             Alarm=false;
         }
