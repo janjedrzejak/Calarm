@@ -1,6 +1,7 @@
 package calarm.calarm;
 
 import android.Manifest;
+import android.R;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -80,8 +81,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     }
 
     private boolean checkPermission(){
-        int result = ContextCompat.checkSelfPermission(context, Manifest.permission.SEND_SMS);
-        if (result == PackageManager.PERMISSION_GRANTED){
+        int smsPermission = ContextCompat.checkSelfPermission(context, Manifest.permission.SEND_SMS);
+        int gpsPermission = ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION);
+        if (smsPermission == PackageManager.PERMISSION_GRANTED && gpsPermission == PackageManager.PERMISSION_GRANTED){
             return true;
         } else {
             return false;
@@ -142,7 +144,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
                     if (btnOn == false) {
                         image.setImageResource(R.drawable.odblokuj);
-                        Toast.makeText(getApplicationContext(), "Alarm uzbrojony! \n Czas na wyjście: " + (timeawake/1000) + " sekund", Toast.LENGTH_LONG).show();
+                        Toast.makeText(getApplicationContext(), "Alarm uzbrojony! \nCzas na wyjście: " + (timeawake/1000) + " sekund", Toast.LENGTH_LONG).show();
                     } else {
                         image.setImageResource(R.drawable.zablokuj);
                         btnOn = false;
@@ -237,7 +239,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         }
 
         if(Alarm==true) {
-            smsManager.sendTextMessage(phoneNo, null, sms, null, null);
+            //smsManager.sendTextMessage(phoneNo, null, sms, null, null);
             onLock=false;
             Alarm=false;
         }
