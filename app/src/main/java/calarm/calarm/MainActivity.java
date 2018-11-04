@@ -1,7 +1,6 @@
 package calarm.calarm;
 
 import android.Manifest;
-import android.R;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -86,17 +85,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         preferencesEditor.commit();
     }
 
-<<<<<<< HEAD
-    private boolean checkPermission(){
-        int smsPermission = ContextCompat.checkSelfPermission(context, Manifest.permission.SEND_SMS);
-        int gpsPermission = ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION);
-        if (smsPermission == PackageManager.PERMISSION_GRANTED && gpsPermission == PackageManager.PERMISSION_GRANTED){
-=======
     private boolean checkSMSPermission(){
         int smsPermission = ContextCompat.checkSelfPermission(context, Manifest.permission.SEND_SMS);
 
         if (smsPermission == PackageManager.PERMISSION_GRANTED){
->>>>>>> master
             return true;
         } else {
             return false;
@@ -295,12 +287,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         }
 
         if(Alarm==true) {
-<<<<<<< HEAD
-            //smsManager.sendTextMessage(phoneNo, null, sms, null, null);
-=======
             sms = sms + "\nMAPA: " + "https://www.google.com/maps/search/?api=1&query="+latitude+","+longitude; //https://www.google.com/maps/search/?api=1&query=latitude,longitude
             smsManager.sendTextMessage(phoneNo, null, sms, null, null);
->>>>>>> master
             onLock=false;
             Alarm=false;
         }
