@@ -35,6 +35,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private TextView readText, saveText, answerText;
     private Sensor mySensor;
     private SensorManager SM;
+    private LocationManager LM;
+    SmsManager smsManager = SmsManager.getDefault();
 
     private double X,Y,Z; //actual coordinates
     private double saveX, saveY, saveZ; //saved coordinates
@@ -55,13 +57,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private View view;
     private static final int PERMISSION_REQUEST_CODE = 1;
 
-    private double latitude;
-    private double longitude;
+    double latitude;
+    double longitude;
 
     ImageView image;
-    SmsManager smsManager = SmsManager.getDefault();
-    LocationManager locationManager;
-    LocationListener locationListener;
     String phoneNo;
     double prec=(1.00 - (30.00 / 100.00));
     int timeawake=2000; //time evacuation
@@ -86,18 +85,29 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         preferencesEditor.commit();
     }
 
-    private boolean checkPermission(){
+    private boolean checkSMSPermission(){
         int smsPermission = ContextCompat.checkSelfPermission(context, Manifest.permission.SEND_SMS);
-        int locationPermission = ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION);
-        if (smsPermission == PackageManager.PERMISSION_GRANTED && locationPermission == PackageManager.PERMISSION_GRANTED){
+
+        if (smsPermission == PackageManager.PERMISSION_GRANTED){
             return true;
         } else {
             return false;
         }
     }
-    private void requestPermission(){
+
+    public boolean checkLocationPermission()
+    {
+        String permission = "android.permission.ACCESS_FINE_LOCATION";
+        int res = this.checkCallingOrSelfPermission(permission);
+        return (res == PackageManager.PERMISSION_GRANTED);
+    }
+
+    private void requestSMSPermission(){
         ActivityCompat.requestPermissions(activity,new String[]{Manifest.permission.SEND_SMS},PERMISSION_REQUEST_CODE);
-        ActivityCompat.requestPermissions(activity, new String[] {Manifest.permission.ACCESS_FINE_LOCATION}, PERMISSION_REQUEST_CODE);
+    }
+
+    private void requestLocationPermission() {
+        ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
     }
 
 
@@ -109,36 +119,12 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         context = getApplicationContext();
         activity = this;
 
-        if(!checkPermission()) {
-            requestPermission();
+        if(!checkSMSPermission()) {
+            requestSMSPermission();
         }
-
-        locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
-        locationListener = new LocationListener() {
-            @Override
-            public void onLocationChanged(Location location) {
-                latitude = location.getLatitude();
-                longitude = location.getLongitude();
-            }
-
-            @Override
-            public void onStatusChanged(String provider, int status, Bundle extras) {
-
-            }
-
-            @Override
-            public void onProviderEnabled(String provider) {
-
-            }
-
-            @Override
-            public void onProviderDisabled(String provider) {
-                Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-                startActivity(intent);
-            }
-        };
-        locationManager.requestLocationUpdates("gps", 1000,0,locationListener);
-        longitude=longitude;
+        if(!checkLocationPermission()) {
+            requestLocationPermission();
+        }
 
         preferences = getSharedPreferences(PREFERENCES_NAME, AppCompatActivity.MODE_PRIVATE);
         if(!preferences.contains(PREFERENCES_PHONENUMBER)) {
@@ -148,7 +134,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         } else {
             readData();
         }
-
 
         SM = (SensorManager)getSystemService(SENSOR_SERVICE);
         mySensor = SM.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
@@ -163,7 +148,35 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         btnDisable.setOnClickListener(this);
         btnPreferencje.setOnClickListener(this);
 
+        LM = (LocationManager)getSystemService(LOCATION_SERVICE); //gps
+        LocationListener locationListener = new LocationListener() {
+            boolean isGPS=false;
+            @Override
+            public void onLocationChanged(Location location) {
+                latitude = location.getLatitude();
+                longitude = location.getLongitude();
+                if(!isGPS) {
+                    Toast.makeText(getApplicationContext(), "GPS gotowy do działania", Toast.LENGTH_SHORT).show();
+                    isGPS=true;
+                }
+            }
 
+            @Override
+            public void onStatusChanged(String provider, int status, Bundle extras) {
+
+            }
+
+            @Override
+            public void onProviderEnabled(String provider) {
+
+            }
+
+            @Override
+            public void onProviderDisabled(String provider) {
+
+            }
+        };
+        LM.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
 
     }
 
@@ -253,6 +266,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         //readText.setText("X: " +  X + " Y: " + Y + " Z: " + Z);
         //saveText.setText("X: " +  saveX + " Y: " + saveY + " Z: " + saveZ);
 
+        readText.setText("Długość: " + longitude + " " + "\nSzerokość: " + latitude);
+
         if(onLock) {
             if(
                     (X>=(saveX-prec) && X<=(saveX+prec)) &&
@@ -272,7 +287,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         }
 
         if(Alarm==true) {
-            //smsManager.sendTextMessage(phoneNo, null, sms, null, null);
+            sms = sms + "\nMAPA: " + "https://www.google.com/maps/search/?api=1&query="+latitude+","+longitude; //https://www.google.com/maps/search/?api=1&query=latitude,longitude
+            smsManager.sendTextMessage(phoneNo, null, sms, null, null);
             onLock=false;
             Alarm=false;
         }
@@ -282,4 +298,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
 
     }
+
+
 }
