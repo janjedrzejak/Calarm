@@ -7,8 +7,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.Handler;
 import android.preference.PreferenceManager;
+import android.provider.Settings;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -32,6 +36,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private TextView readText, saveText, answerText;
     private Sensor mySensor;
     private SensorManager SM;
+    private LocationManager LM;
+    SmsManager smsManager = SmsManager.getDefault();
 
     private double X,Y,Z; //actual coordinates
     private double saveX, saveY, saveZ; //saved coordinates
@@ -52,10 +58,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private View view;
     private static final int PERMISSION_REQUEST_CODE = 1;
 
-
+    double latitude;
+    double longitude;
 
     ImageView image;
-    SmsManager smsManager = SmsManager.getDefault();
     String phoneNo;
     double prec=(1.00 - (30.00 / 100.00));
     int timeawake=2000; //time evacuation
@@ -80,17 +86,36 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         preferencesEditor.commit();
     }
 
+<<<<<<< HEAD
     private boolean checkPermission(){
         int smsPermission = ContextCompat.checkSelfPermission(context, Manifest.permission.SEND_SMS);
         int gpsPermission = ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION);
         if (smsPermission == PackageManager.PERMISSION_GRANTED && gpsPermission == PackageManager.PERMISSION_GRANTED){
+=======
+    private boolean checkSMSPermission(){
+        int smsPermission = ContextCompat.checkSelfPermission(context, Manifest.permission.SEND_SMS);
+
+        if (smsPermission == PackageManager.PERMISSION_GRANTED){
+>>>>>>> master
             return true;
         } else {
             return false;
         }
     }
-    private void requestPermission(){
+
+    public boolean checkLocationPermission()
+    {
+        String permission = "android.permission.ACCESS_FINE_LOCATION";
+        int res = this.checkCallingOrSelfPermission(permission);
+        return (res == PackageManager.PERMISSION_GRANTED);
+    }
+
+    private void requestSMSPermission(){
         ActivityCompat.requestPermissions(activity,new String[]{Manifest.permission.SEND_SMS},PERMISSION_REQUEST_CODE);
+    }
+
+    private void requestLocationPermission() {
+        ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
     }
 
 
@@ -102,12 +127,14 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         context = getApplicationContext();
         activity = this;
 
-        if(!checkPermission()) {
-            requestPermission();
+        if(!checkSMSPermission()) {
+            requestSMSPermission();
+        }
+        if(!checkLocationPermission()) {
+            requestLocationPermission();
         }
 
         preferences = getSharedPreferences(PREFERENCES_NAME, AppCompatActivity.MODE_PRIVATE);
-
         if(!preferences.contains(PREFERENCES_PHONENUMBER)) {
             saveDefaultData();
             Toast.makeText(getApplicationContext(),"Uzupełnij ustawienia, \n aby aplikacja była gotowa do użycia.", Toast.LENGTH_LONG).show();
@@ -115,7 +142,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         } else {
             readData();
         }
-
 
         SM = (SensorManager)getSystemService(SENSOR_SERVICE);
         mySensor = SM.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
@@ -130,7 +156,35 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         btnDisable.setOnClickListener(this);
         btnPreferencje.setOnClickListener(this);
 
+        LM = (LocationManager)getSystemService(LOCATION_SERVICE); //gps
+        LocationListener locationListener = new LocationListener() {
+            boolean isGPS=false;
+            @Override
+            public void onLocationChanged(Location location) {
+                latitude = location.getLatitude();
+                longitude = location.getLongitude();
+                if(!isGPS) {
+                    Toast.makeText(getApplicationContext(), "GPS gotowy do działania", Toast.LENGTH_SHORT).show();
+                    isGPS=true;
+                }
+            }
 
+            @Override
+            public void onStatusChanged(String provider, int status, Bundle extras) {
+
+            }
+
+            @Override
+            public void onProviderEnabled(String provider) {
+
+            }
+
+            @Override
+            public void onProviderDisabled(String provider) {
+
+            }
+        };
+        LM.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
 
     }
 
@@ -220,6 +274,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         //readText.setText("X: " +  X + " Y: " + Y + " Z: " + Z);
         //saveText.setText("X: " +  saveX + " Y: " + saveY + " Z: " + saveZ);
 
+        readText.setText("Długość: " + longitude + " " + "\nSzerokość: " + latitude);
+
         if(onLock) {
             if(
                     (X>=(saveX-prec) && X<=(saveX+prec)) &&
@@ -239,7 +295,12 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         }
 
         if(Alarm==true) {
+<<<<<<< HEAD
             //smsManager.sendTextMessage(phoneNo, null, sms, null, null);
+=======
+            sms = sms + "\nMAPA: " + "https://www.google.com/maps/search/?api=1&query="+latitude+","+longitude; //https://www.google.com/maps/search/?api=1&query=latitude,longitude
+            smsManager.sendTextMessage(phoneNo, null, sms, null, null);
+>>>>>>> master
             onLock=false;
             Alarm=false;
         }
@@ -249,4 +310,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
 
     }
+
+
 }
