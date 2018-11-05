@@ -16,9 +16,9 @@ After downloading the release you have to enable UNKNOW SOURCES option on your s
 ## How it work?
 After starting the application, put the phone in the right place in your car. Then click the pink button in the middle. If your car starts, you'll receive a text message with GPS coordinates on map.
 ## Interface
-<img width="400" src="https://github.com/janjedrzejak/Calarm/blob/demo/demo/002.png" ></img>
+<img width="800" src="https://github.com/janjedrzejak/Calarm/blob/demo/demo/002.png" ></img>
 ## Activities
-<img width="400" src="https://github.com/janjedrzejak/Calarm/blob/demo/demo/1a.png" ></img>
+<img width="800" src="https://github.com/janjedrzejak/Calarm/blob/demo/demo/1a.png" ></img>
 ## future release functionalities
 * Sending email with GPS location point on map
 * Remote app controlling 
