@@ -1,8 +1,8 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![](https://badgen.net/github/release/janjedrzejak/Calarm)](https://github.com/janjedrzejak/Calarm/releases)
-
 # Calarm
 This is android app. Calarm is a simple car alarm. You can use your old smartphone as a car alarm.
+<img width="400" src="https://github.com/janjedrzejak/Calarm/blob/demo/demo/0.png" ></img>
 ## Technologies
 * Java
 * XML
