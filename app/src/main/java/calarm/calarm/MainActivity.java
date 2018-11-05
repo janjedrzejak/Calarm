@@ -32,42 +32,35 @@ import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity implements SensorEventListener, View.OnClickListener {
 
-    private TextView readText, saveText, answerText;
-    private Sensor mySensor;
-    private SensorManager SM;
-    private LocationManager LM;
-    SmsManager smsManager = SmsManager.getDefault();
-
+    private TextView readText, saveText, answerText; //dev textViews
+    private Sensor mySensor; //accelerometr
+    private SensorManager SM; //accellerometer manager
+    private LocationManager LM; //gps manager
+    private SmsManager smsManager = SmsManager.getDefault(); //sms manager
     private double X,Y,Z; //actual coordinates
     private double saveX, saveY, saveZ; //saved coordinates
-    private boolean onLock=false;
-    private boolean Alarm=false;
-
+    private boolean onLock=false; //alarm is not turn on
+    private boolean Alarm=false; //alarm isnt detected move
     private static final String PREFERENCES_NAME = "Calarm";
     private static final String PREFERENCES_PHONENUMBER = "phonenumber";
     private static final String PREFERENCES_MAIL = "mail";
     private static final String PREFERENCES_PIN = "pin";
     private static final String PREFERENCES_TIMEAWAKE = "timeawake";
     private static final String PREFERENCES_PRECISION = "precision";
-
-    private SharedPreferences preferences;
-
-    private Context context;
+    private SharedPreferences preferences; //saved user preferences
+    private Context context; //activity context
     private Activity activity;
     private View view;
     private static final int PERMISSION_REQUEST_CODE = 1;
+    private double latitude; //gps latitude
+    private double longitude; //gps longitude
+    private ImageView image; //button on center
+    private String phoneNo; //phone number to sending alarm data
+    private double prec=(1.00 - (30.00 / 100.00)); //precision of detected move
+    private int timeawake=2000; //time evacuation
+    private String sms = "ALARM!"; //first line of alarm message
 
-    double latitude;
-    double longitude;
-
-    ImageView image;
-    String phoneNo;
-    double prec=(1.00 - (30.00 / 100.00));
-    int timeawake=2000; //time evacuation
-    String sms = "ALARM!";
-
-
-
+    //if isnt data save or if is the first app lauch saving default data to preferences
     private void saveDefaultData() {
         SharedPreferences.Editor preferencesEditor = preferences.edit();
 
@@ -84,28 +77,27 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         preferencesEditor.commit();
     }
-
+    //checking sms permission
     private boolean checkSMSPermission(){
         int smsPermission = ContextCompat.checkSelfPermission(context, Manifest.permission.SEND_SMS);
-
         if (smsPermission == PackageManager.PERMISSION_GRANTED){
             return true;
         } else {
             return false;
         }
     }
-
+    //checking gps permission
     public boolean checkLocationPermission()
     {
         String permission = "android.permission.ACCESS_FINE_LOCATION";
         int res = this.checkCallingOrSelfPermission(permission);
         return (res == PackageManager.PERMISSION_GRANTED);
     }
-
+    //show the sms permission window
     private void requestSMSPermission(){
         ActivityCompat.requestPermissions(activity,new String[]{Manifest.permission.SEND_SMS},PERMISSION_REQUEST_CODE);
     }
-
+    //show the location permission window
     private void requestLocationPermission() {
         ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
     }
@@ -116,16 +108,16 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        context = getApplicationContext();
+        context = getApplicationContext(); //initial variables
         activity = this;
-
+        //checking permissions
         if(!checkSMSPermission()) {
             requestSMSPermission();
         }
         if(!checkLocationPermission()) {
             requestLocationPermission();
         }
-
+        //get shared preferences access and saving default data if is the first app lauch
         preferences = getSharedPreferences(PREFERENCES_NAME, AppCompatActivity.MODE_PRIVATE);
         if(!preferences.contains(PREFERENCES_PHONENUMBER)) {
             saveDefaultData();
@@ -135,6 +127,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             readData();
         }
 
+        //initial app variables
         SM = (SensorManager)getSystemService(SENSOR_SERVICE);
         mySensor = SM.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         SM.registerListener(this, mySensor, SensorManager.SENSOR_DELAY_NORMAL);
@@ -147,40 +140,45 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         btnDisable.setOnClickListener(this);
         btnPreferencje.setOnClickListener(this);
-
+        //gps access trying connection
+        try {
         LM = (LocationManager)getSystemService(LOCATION_SERVICE); //gps
-        LocationListener locationListener = new LocationListener() {
-            boolean isGPS=false;
-            @Override
-            public void onLocationChanged(Location location) {
-                latitude = location.getLatitude();
-                longitude = location.getLongitude();
-                if(!isGPS) {
-                    Toast.makeText(getApplicationContext(), "GPS gotowy do działania", Toast.LENGTH_SHORT).show();
-                    isGPS=true;
+            LocationListener locationListener = new LocationListener() {
+                boolean isGPS = false;
+
+                @Override
+                public void onLocationChanged(Location location) {
+                    latitude = location.getLatitude();
+                    longitude = location.getLongitude();
+                    if (!isGPS) {
+                        Toast.makeText(getApplicationContext(), "GPS gotowy do działania", Toast.LENGTH_SHORT).show();
+                        isGPS = true;
+                    }
                 }
-            }
 
-            @Override
-            public void onStatusChanged(String provider, int status, Bundle extras) {
+                @Override
+                public void onStatusChanged(String provider, int status, Bundle extras) {
 
-            }
+                }
 
-            @Override
-            public void onProviderEnabled(String provider) {
+                @Override
+                public void onProviderEnabled(String provider) {
 
-            }
+                }
 
-            @Override
-            public void onProviderDisabled(String provider) {
+                @Override
+                public void onProviderDisabled(String provider) {
 
-            }
-        };
-        LM.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
+                }
+            };
+            LM.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
+        } catch(SecurityException e) {
+            requestLocationPermission(); //show gps permission window if the trying is not working
+        }
 
     }
 
-    private boolean btnOn=false;
+    private boolean btnOn=false; //button lock is not clicked
     public void onClick(View v) {
         image = (ImageView) findViewById(R.id.btnDisable);
         switch (v.getId()) {
@@ -241,7 +239,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         }
 
     }
-
+    //reading data from shared preferencess
     private void readData() {
         String phonenumberFrompreferences = preferences.getString(PREFERENCES_PHONENUMBER, "");
         String mailFrompreferences = preferences.getString(PREFERENCES_MAIL, "");
@@ -263,11 +261,11 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         Y = event.values[1]; Y = Math.round(Y*10.0) / 10.0;
         Z = event.values[2]; Z = Math.round(Z*10.0) / 10.0;
 
+        //***************DEV textViews to reading datas********************************
         //readText.setText("X: " +  X + " Y: " + Y + " Z: " + Z);
         //saveText.setText("X: " +  saveX + " Y: " + saveY + " Z: " + saveZ);
-
-        readText.setText("Długość: " + longitude + " " + "\nSzerokość: " + latitude);
-
+        //readText.setText("Długość: " + longitude + " " + "\nSzerokość: " + latitude);
+        //*****************************************************************************
         if(onLock) {
             if(
                     (X>=(saveX-prec) && X<=(saveX+prec)) &&
