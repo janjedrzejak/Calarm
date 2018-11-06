@@ -171,7 +171,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
                 }
             };
-            LM.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
+            LM.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 5, locationListener);
         } catch(SecurityException e) {
             requestLocationPermission(); //show gps permission window if the trying is not working
         }
@@ -184,7 +184,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         switch (v.getId()) {
             case R.id.btnDisable:
                 //=======================================================================
-                if(1==1 /*phoneNo.length()==9*/) {
+                if(phoneNo.length()==9) {
 
                     if (btnOn == false) {
                         image.setImageResource(R.drawable.odblokuj);
@@ -287,13 +287,14 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     public void silentAlarm() {
         detect=false;
-        sms = sms + "\nMAPA: " + "https://www.google.com/maps/search/?api=1&query="+latitude+","+longitude; //https://www.google.com/maps/search/?api=1&query=latitude,longitude
         final Handler handler = new Handler();
-        final int delay = 12000; //milliseconds
+        final int delay = 120000; //milliseconds
         Toast.makeText(context, "wysłano", Toast.LENGTH_SHORT).show();
+        smsManager.sendTextMessage(phoneNo, null, sms, null, null);
             handler.postDelayed(new Runnable() {
                 public void run() {
                     if(!stop) {
+                        sms = "MAPA: " + "https://www.google.com/maps/search/?api=1&query="+latitude+","+longitude; //https://www.google.com/maps/search/?api=1&query=latitude,longitude
                         smsManager.sendTextMessage(phoneNo, null, sms, null, null);
                         Toast.makeText(context, "wysłano", Toast.LENGTH_SHORT).show();
                         handler.postDelayed(this, delay);
