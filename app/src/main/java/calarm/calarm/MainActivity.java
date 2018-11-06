@@ -39,7 +39,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private SmsManager smsManager = SmsManager.getDefault(); //sms manager
     private double X,Y,Z; //actual coordinates
     private double saveX, saveY, saveZ; //saved coordinates
-    private boolean onLock=false; //alarm is not turn on
+    private boolean detect=false; //alarm is not turn on
     private boolean Alarm=false; //alarm isnt detected move
     private static final String PREFERENCES_NAME = "Calarm";
     private static final String PREFERENCES_PHONENUMBER = "phonenumber";
@@ -171,13 +171,13 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
                 }
             };
-            LM.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
+            LM.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 5, locationListener);
         } catch(SecurityException e) {
             requestLocationPermission(); //show gps permission window if the trying is not working
         }
 
     }
-
+    private boolean stop=false;
     private boolean btnOn=false; //button lock is not clicked
     public void onClick(View v) {
         image = (ImageView) findViewById(R.id.btnDisable);
@@ -189,12 +189,13 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                     if (btnOn == false) {
                         image.setImageResource(R.drawable.odblokuj);
                         Toast.makeText(getApplicationContext(), "Alarm uzbrojony! \nCzas na wyjście: " + (timeawake/1000) + " sekund", Toast.LENGTH_LONG).show();
+                        stop=false;
                     } else {
                         image.setImageResource(R.drawable.zablokuj);
                         btnOn = false;
-                        onLock = false;
+                        detect = false;
                         Toast.makeText(getApplicationContext(), "Alarm rozbrojony!", Toast.LENGTH_LONG).show();
-
+                        stop=true;
                         break;
                     }
 
@@ -211,11 +212,11 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                             if (btnOn == false) {
                                 image.setImageResource(R.drawable.odblokuj);
                                 btnOn = true;
-                                onLock = true;
+                                detect = true;
                             } else {
                                 image.setImageResource(R.drawable.zablokuj);
                                 btnOn = false;
-                                onLock = false;
+                                detect = false;
                             }
                         }
                     }, timeawake);
@@ -254,42 +255,52 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         prec = (1.00 - (precisionFrompreferences / 100.00));
         timeawake = (Integer.parseInt(timeawakeFrompreferences)) * 1000;
     }
-
+    //up 2.1 version upgrade method
     @Override
     public void onSensorChanged(SensorEvent event) {
-        X = event.values[0]; X = Math.round(X*10.0) / 10.0;
-        Y = event.values[1]; Y = Math.round(Y*10.0) / 10.0;
-        Z = event.values[2]; Z = Math.round(Z*10.0) / 10.0;
+        X = event.values[0];
+        X = Math.round(X * 10.0) / 10.0;
+        Y = event.values[1];
+        Y = Math.round(Y * 10.0) / 10.0;
+        Z = event.values[2];
+        Z = Math.round(Z * 10.0) / 10.0;
 
         //***************DEV textViews to reading datas********************************
         //readText.setText("X: " +  X + " Y: " + Y + " Z: " + Z);
         //saveText.setText("X: " +  saveX + " Y: " + saveY + " Z: " + saveZ);
         //readText.setText("Długość: " + longitude + " " + "\nSzerokość: " + latitude);
         //*****************************************************************************
-        if(onLock) {
-            if(
-                    (X>=(saveX-prec) && X<=(saveX+prec)) &&
-                    (Y>=(saveY-prec) && Y<=(saveY+prec)) &&
-                    (Z>=(saveZ-prec) && Z<=(saveZ+prec))      ) {
-
-                Alarm=false;
-
+        if (detect) { //turn on detecting
+            if (    (X >= (saveX - prec) && X <= (saveX + prec)) &&
+                    (Y >= (saveY - prec) && Y <= (saveY + prec)) &&
+                    (Z >= (saveZ - prec) && Z <= (saveZ + prec)))
+            {
+                //NOT DETECTED
             } else {
                 Alarm=true;
-                answerText.setText("ALARM!");
+                silentAlarm();
             }
-
         } else {
-            answerText.setText("");
             Alarm=false;
         }
+    }
 
-        if(Alarm==true) {
-            sms = sms + "\nMAPA: " + "https://www.google.com/maps/search/?api=1&query="+latitude+","+longitude; //https://www.google.com/maps/search/?api=1&query=latitude,longitude
-            smsManager.sendTextMessage(phoneNo, null, sms, null, null);
-            onLock=false;
-            Alarm=false;
-        }
+    public void silentAlarm() {
+        detect=false;
+        final Handler handler = new Handler();
+        final int delay = 120000; //milliseconds
+        Toast.makeText(context, "wysłano", Toast.LENGTH_SHORT).show();
+        smsManager.sendTextMessage(phoneNo, null, sms, null, null);
+            handler.postDelayed(new Runnable() {
+                public void run() {
+                    if(!stop) {
+                        sms = "MAPA: " + "https://www.google.com/maps/search/?api=1&query="+latitude+","+longitude; //https://www.google.com/maps/search/?api=1&query=latitude,longitude
+                        smsManager.sendTextMessage(phoneNo, null, sms, null, null);
+                        Toast.makeText(context, "wysłano", Toast.LENGTH_SHORT).show();
+                        handler.postDelayed(this, delay);
+                    }
+                }
+            }, delay);
     }
 
     @Override

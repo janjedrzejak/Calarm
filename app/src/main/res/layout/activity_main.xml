@@ -11,15 +11,14 @@
 
     <ImageView
         android:id="@+id/imageView"
-        android:layout_width="225dp"
+        android:layout_width="match_parent"
         android:layout_height="69dp"
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
-        android:layout_centerInParent="true"
-        android:layout_centerHorizontal="true"
-        android:layout_centerVertical="false"
-        android:layout_marginStart="81dp"
-        android:layout_marginTop="52dp"
+        android:layout_alignParentEnd="true"
+        android:layout_marginStart="0dp"
+        android:layout_marginTop="34dp"
+        android:layout_marginEnd="0dp"
         app:srcCompat="@drawable/logo" />
 
     <ImageView
