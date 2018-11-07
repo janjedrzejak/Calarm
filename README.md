@@ -6,7 +6,7 @@ This is android app. Calarm is a simple car alarm. You can use your old smartpho
 ## Technologies
 * Java
 * XML
-## Runing
+## Running
 * Min Android SDK Version is 19 (Android 4.4 KITKAT)
 * Targer Android SDK Version is 28 (Android 9.0 PIE)
 * Accelerometer
