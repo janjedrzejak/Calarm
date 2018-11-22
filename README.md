@@ -20,6 +20,5 @@ After starting the application, put the phone in the right place in your car. Th
 ## Activities
 <img width="800" src="https://github.com/janjedrzejak/Calarm/blob/demo/demo/1a.png" ></img>
 ## future release functionalities
-* After impulse sending SMS with location every 2 minutes
 * Remote app controlling 
 * iOS version
